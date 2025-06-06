@@ -3,6 +3,7 @@
 import {useState, useEffect} from "react";
 import {useUser} from "@/context/UserContext";
 import {useRouter} from "next/navigation";
+import Link from "next/link";
 
 export default function Page() {
     const [nome, setNome] = useState("");
@@ -78,9 +79,9 @@ export default function Page() {
                 <h2 className="page-title">Cadastro</h2>
                 <p>
                     Eu já tenho cadastro, quero{" "}
-                    <a href="/login" className="text-indigo-600 underline">
+                    <Link href="/login" className="text-indigo-600 underline">
                         fazer login.
-                    </a>
+                    </Link>
                 </p>
                 <div className="flex flex-col gap-4">
                     <div className="flex flex-col gap-2">
