@@ -17,6 +17,15 @@ export default function Page() {
     const {isLoggedIn, login} = useUser();
     const router = useRouter();
 
+    function formatarParaPadraoBrasileiro(dataString: string): string {
+        const data = new Date(dataString);
+        const dia = data.getDate().toString().padStart(2, "0");
+        const mes = (data.getMonth() + 1).toString().padStart(2, "0");
+        const ano = data.getFullYear();
+        return `${dia}/${mes}/${ano}`;
+    }
+
+
     // Função para lidar com o envio do formulário
     const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault();
@@ -24,6 +33,9 @@ export default function Page() {
         setSuccessMessage("");
 
         try {
+
+            const dataFormatada = formatarParaPadraoBrasileiro(dataNascimento);
+
             const response = await fetch("http://localhost:3000/usuarios", {
                 method: "POST",
                 headers: {
@@ -33,13 +45,13 @@ export default function Page() {
                     nome,
                     email,
                     senha,
-                    data_nascimento: dataNascimento, // Formato esperado pelo backend
+                    data_nascimento: dataFormatada,
                 }),
             });
 
             if (!response.ok) {
                 const errorData = await response.json();
-                throw new Error(errorData.mensagem || "Erro ao cadastrar usuário.");
+                throw new Error(errorData.message || "Erro ao cadastrar usuário.");
             }
 
             const data = await response.json();
@@ -53,6 +65,7 @@ export default function Page() {
                 router.push("/");
             }
         } catch (error: any) {
+            console.log(error);
             setErrorMessage(error.message);
         }
     };
