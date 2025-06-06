@@ -1,29 +1,17 @@
 "use client";
 
-import {useState, useEffect} from "react";
-import {useRouter} from "next/navigation";
+import { useState } from "react";
+import { useUser } from "@/context/UserContext";
 
 export default function Page() {
+    const { login } = useUser(); // Usando o método login do contexto
     const [email, setEmail] = useState("");
     const [senha, setSenha] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
-    const [successMessage, setSuccessMessage] = useState("");
-    const [isLoggedIn, setIsLoggedIn] = useState(false); // Estado para verificar se está logado
-    const router = useRouter(); // Hook do Next.js para redirecionamento
-
-    useEffect(() => {
-        // Verifica se o usuário está logado ao carregar a página
-        const token = localStorage.getItem("token");
-        if (token) {
-            setIsLoggedIn(true); // Define como logado
-            router.push("/"); // Redireciona para / -> home
-        }
-    }, [router]);
 
     const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault();
         setErrorMessage("");
-        setSuccessMessage("");
 
         try {
             const response = await fetch("http://localhost:3000/login", {
@@ -31,7 +19,7 @@ export default function Page() {
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify({email, senha}),
+                body: JSON.stringify({ email, senha }),
             });
 
             if (!response.ok) {
@@ -41,24 +29,13 @@ export default function Page() {
 
             const data = await response.json();
             if (data.success) {
-                setSuccessMessage("Login realizado com sucesso!");
-                // Salvar o token no localStorage
-                localStorage.setItem("token", data.data.token);
-
-                // Atualiza o estado para refletir que o usuário está logado
-                setIsLoggedIn(true);
-
-                // Redirecionar para a página / -> home
-                router.push("/");
+                // Usa o método login do contexto para salvar o token
+                login(data.data.token);
             }
         } catch (error: any) {
             setErrorMessage(error.message);
         }
     };
-
-    if (isLoggedIn) {
-        return null; // Ou coloque um spinner caso necessário para evitar piscar o conteúdo.
-    }
 
     return (
         <main>
@@ -103,7 +80,6 @@ export default function Page() {
                     </button>
                 </div>
                 {errorMessage && <p className="text-red-500">{errorMessage}</p>}
-                {successMessage && <p className="text-green-500">{successMessage}</p>}
             </form>
         </main>
     );

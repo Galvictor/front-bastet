@@ -1,27 +1,23 @@
 "use client";
 
-import {useState, useEffect} from "react";
+import {useState} from "react";
+import {useUser} from "@/context/UserContext";
 import {useRouter} from "next/navigation";
 
 export default function Page() {
+    // Estados para cada campo do formulário de cadastro
     const [nome, setNome] = useState("");
     const [email, setEmail] = useState("");
     const [senha, setSenha] = useState("");
     const [dataNascimento, setDataNascimento] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
     const [successMessage, setSuccessMessage] = useState("");
-    const [isLoggedIn, setIsLoggedIn] = useState(false); // Controle se usuário está logado
-    const router = useRouter(); // Para redirecionamento
 
-    useEffect(() => {
-        // Verifica se o usuário já está logado baseado no token no localStorage
-        const token = localStorage.getItem("token");
-        if (token) {
-            setIsLoggedIn(true); // Define como true caso haja token no localStorage
-            router.push("/"); // Redireciona para Home
-        }
-    }, [router]);
+    // Hook do UserContext para usar os métodos de login e estado do usuário
+    const {isLoggedIn, login} = useUser();
+    const router = useRouter();
 
+    // Função para lidar com o envio do formulário
     const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault();
         setErrorMessage("");
@@ -49,16 +45,22 @@ export default function Page() {
             const data = await response.json();
             if (data.success) {
                 setSuccessMessage("Cadastro realizado com sucesso!");
-                // Redireciona para a página de login
-                router.push("/login");
+
+                // Faz login automaticamente após o sucesso no cadastro
+                login(data.data.token);
+
+                // Redireciona para a página inicial
+                router.push("/");
             }
         } catch (error: any) {
             setErrorMessage(error.message);
         }
     };
 
+    // Redireciona para a home se o usuário já estiver logado
     if (isLoggedIn) {
-        return null; // Evita renderizar o formulário se já estiver logado
+        router.push("/");
+        return null;
     }
 
     return (
@@ -69,7 +71,7 @@ export default function Page() {
             >
                 <h2 className="page-title">Cadastro</h2>
                 <p>
-                    Eu já tenho cadastro, quero <a href="/login">fazer login.</a>
+                    Eu já tenho cadastro, quero <a href="/login" className="text-indigo-600 underline">fazer login.</a>
                 </p>
                 <div className="flex flex-col gap-4">
                     <div className="flex flex-col gap-2">
