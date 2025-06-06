@@ -1,11 +1,10 @@
 "use client";
 
-import {useState} from "react";
+import {useState, useEffect} from "react";
 import {useUser} from "@/context/UserContext";
 import {useRouter} from "next/navigation";
 
 export default function Page() {
-    // Estados para cada campo do formulário de cadastro
     const [nome, setNome] = useState("");
     const [email, setEmail] = useState("");
     const [senha, setSenha] = useState("");
@@ -13,28 +12,25 @@ export default function Page() {
     const [errorMessage, setErrorMessage] = useState("");
     const [successMessage, setSuccessMessage] = useState("");
 
-    // Hook do UserContext para usar os métodos de login e estado do usuário
     const {isLoggedIn, login} = useUser();
     const router = useRouter();
 
-    function formatarParaPadraoBrasileiro(dataString: string): string {
-        const data = new Date(dataString);
-        const dia = data.getDate().toString().padStart(2, "0");
-        const mes = (data.getMonth() + 1).toString().padStart(2, "0");
-        const ano = data.getFullYear();
-        return `${dia}/${mes}/${ano}`;
-    }
+    // Redireciona para a home se o usuário já estiver logado
+    useEffect(() => {
+        if (isLoggedIn) {
+            router.push("/");
+        }
+    }, [isLoggedIn, router]); // Só executa quando `isLoggedIn` mudar
 
-
-    // Função para lidar com o envio do formulário
     const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault();
         setErrorMessage("");
         setSuccessMessage("");
 
         try {
-
-            const dataFormatada = formatarParaPadraoBrasileiro(dataNascimento);
+            const dataFormatada = new Date(dataNascimento).toLocaleDateString("pt-BR", {
+                timeZone: "UTC",
+            });
 
             const response = await fetch("http://localhost:3000/usuarios", {
                 method: "POST",
@@ -58,7 +54,7 @@ export default function Page() {
             if (data.success) {
                 setSuccessMessage("Cadastro realizado com sucesso!");
 
-                // Faz login automaticamente após o sucesso no cadastro
+                // Faz login automaticamente após o cadastro
                 login(data.data.token);
 
                 // Redireciona para a página inicial
@@ -70,11 +66,8 @@ export default function Page() {
         }
     };
 
-    // Redireciona para a home se o usuário já estiver logado
-    if (isLoggedIn) {
-        router.push("/");
-        return null;
-    }
+    // Evita renderizar o formulário enquanto redireciona
+    if (isLoggedIn) return null;
 
     return (
         <main>
@@ -84,7 +77,10 @@ export default function Page() {
             >
                 <h2 className="page-title">Cadastro</h2>
                 <p>
-                    Eu já tenho cadastro, quero <a href="/login" className="text-indigo-600 underline">fazer login.</a>
+                    Eu já tenho cadastro, quero{" "}
+                    <a href="/login" className="text-indigo-600 underline">
+                        fazer login.
+                    </a>
                 </p>
                 <div className="flex flex-col gap-4">
                     <div className="flex flex-col gap-2">
