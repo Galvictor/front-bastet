@@ -14,7 +14,6 @@ export default function CursoView({data}: { data: CursoType }) {
     });
     const {isLoggedIn} = useUser();
 
-    // Atualiza o estado quando as props mudam
     useEffect(() => {
         setInscricaoStatus({
             inscrito: data.inscrito,
@@ -59,7 +58,7 @@ export default function CursoView({data}: { data: CursoType }) {
     return <div className="border flex-1 flex flex-col">
         <figure className="relative aspect-video">
             <Image src={data.capa} alt={data.nome} fill/>
-            {inscricaoStatus.inscrito &&
+            {inscricaoStatus.inscrito && !inscricaoStatus.inscricao_cancelada &&
                 <figcaption
                     className="text-sm p-4 bg-slate-200 absolute m-4 shadow-xl border-slate-400 border rounded-xl">
                     Você já se inscreveu neste curso
@@ -80,8 +79,19 @@ export default function CursoView({data}: { data: CursoType }) {
         </div>
         {
             inscricaoStatus.inscrito ?
-                inscricaoStatus.inscricao_cancelada ?
-                    <p className="bg-red-500 p-4 text-center text-white">Inscrição cancelada</p> :
+                inscricaoStatus.inscricao_cancelada ? (
+                    <div className="flex flex-col">
+                        <p className="bg-red-500 p-2 text-center text-white">Inscrição cancelada</p>
+                        <button
+                            className="text-center p-4 bg-indigo-500 hover:bg-indigo-600 text-white disabled:bg-indigo-300 disabled:cursor-not-allowed"
+                            onClick={handleInscricao}
+                            disabled={isLoading || !isLoggedIn}
+                            title={!isLoggedIn ? "Faça login para interagir com o curso" : ""}
+                        >
+                            {isLoading ? 'Processando...' : 'Voltar a se inscrever no curso'}
+                        </button>
+                    </div>
+                ) : (
                     <button
                         className="text-center p-4 bg-slate-300 hover:bg-slate-400 disabled:bg-slate-200 disabled:cursor-not-allowed"
                         onClick={handleCancelamento}
@@ -89,15 +99,17 @@ export default function CursoView({data}: { data: CursoType }) {
                         title={!isLoggedIn ? "Faça login para interagir com o curso" : ""}
                     >
                         {isLoading ? 'Processando...' : 'Cancelar inscrição'}
-                    </button> :
-                <button
-                    className="text-center p-4 bg-indigo-500 hover:bg-indigo-600 text-white disabled:bg-indigo-300 disabled:cursor-not-allowed"
-                    onClick={handleInscricao}
-                    disabled={isLoading || !isLoggedIn}
-                    title={!isLoggedIn ? "Faça login para interagir com o curso" : ""}
-                >
-                    {isLoading ? 'Processando...' : 'Fazer inscrição'}
-                </button>
+                    </button>
+                ) : (
+                    <button
+                        className="text-center p-4 bg-indigo-500 hover:bg-indigo-600 text-white disabled:bg-indigo-300 disabled:cursor-not-allowed"
+                        onClick={handleInscricao}
+                        disabled={isLoading || !isLoggedIn}
+                        title={!isLoggedIn ? "Faça login para interagir com o curso" : ""}
+                    >
+                        {isLoading ? 'Processando...' : 'Fazer inscrição'}
+                    </button>
+                )
         }
     </div>
 }
