@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
-import { useUser } from "@/context/UserContext";
+import {useState} from "react";
+import {useUser} from "@/context/UserContext";
+import {login} from "@/services/api";
 
 export default function Page() {
-    const { login } = useUser(); // Usando o método login do contexto
+    const {login: userLogin} = useUser();
     const [email, setEmail] = useState("");
     const [senha, setSenha] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
@@ -14,28 +15,19 @@ export default function Page() {
         setErrorMessage("");
 
         try {
-            const response = await fetch("http://localhost:3000/login", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ email, senha }),
-            });
+            const response = await login({email, senha});
 
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.mensagem || "Erro ao fazer login.");
+            if (response.success) {
+                userLogin(
+                    response.data.token,
+                    response.data.usuario
+                );
             }
-
-            const data = await response.json();
-            if (data.success) {
-                // Usa o método login do contexto para salvar o token
-                login(data.data.token);
-            }
-        } catch (error: any) {
-            setErrorMessage(error.message);
+        } catch (error) {
+            setErrorMessage(error instanceof Error ? error.message : 'Erro ao fazer login');
         }
     };
+
 
     return (
         <main>
