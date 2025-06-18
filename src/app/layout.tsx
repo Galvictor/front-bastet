@@ -8,7 +8,7 @@ import {useUser, UserProvider} from "@/context/UserContext";
 const inter = Inter({subsets: ["latin"]});
 
 function LayoutContent({children}: { children: React.ReactNode }) {
-    const {isLoggedIn, logout} = useUser(); // Consome valores do UserContext
+    const {isLoggedIn, logout, userData} = useUser(); // Consome valores do UserContext
 
     return (
         <html lang="pt-br">
@@ -32,9 +32,9 @@ function LayoutContent({children}: { children: React.ReactNode }) {
                             </Link>
                         </>
                     )}
-                    {isLoggedIn && (
+                    {isLoggedIn && userData && (
                         <>
-                            <Link className="text-indigo-600" href="/usuario/will">
+                            <Link className="text-indigo-600" href={'/usuario/' + userData.id}>
                                 Meus cursos
                             </Link>
                             <button

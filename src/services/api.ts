@@ -44,15 +44,24 @@ export const login = async (loginData: LoginData): Promise<LoginResponse> => {
     return data;
 };
 
-export const getCursos = async (userId?: number): Promise<Curso[]> => {
+export const getCursos = async (userId?: string | number): Promise<Curso[]> => {
     const url = userId ? `${BASE_URL}/cursos/${userId}` : `${BASE_URL}/cursos`;
+    const token = localStorage.getItem('token');
+
+    if (!token) {
+        throw new Error('Token não fornecido');
+    }
 
     try {
         const response = await fetch(url, {
             headers: {
-                'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                'Authorization': `Bearer ${token}`,
             },
         });
+
+        if (response.status === 401) {
+            throw new Error('Token inválido');
+        }
 
         if (!response.ok) {
             throw new Error('Erro ao carregar cursos');
