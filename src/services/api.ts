@@ -64,3 +64,32 @@ export const getCursos = async (userId?: number): Promise<Curso[]> => {
         throw error;
     }
 };
+
+export const inscreverEmCurso = async (cursoId: string | number): Promise<void> => {
+    const response = await fetch(`${BASE_URL}/inscricoes/${cursoId}`, {
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+            'Content-Type': 'application/json',
+        },
+    });
+
+    if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.mensagem || 'Erro ao fazer inscrição no curso');
+    }
+};
+
+export const cancelarInscricao = async (cursoId: string | number): Promise<void> => {
+    const response = await fetch(`${BASE_URL}/inscricoes/${cursoId}`, {
+        method: 'DELETE',
+        headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        },
+    });
+
+    if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.mensagem || 'Erro ao cancelar inscrição no curso');
+    }
+};
