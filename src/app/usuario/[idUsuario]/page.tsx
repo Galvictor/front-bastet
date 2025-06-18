@@ -3,7 +3,7 @@
 import Curso from '@/components/curso'
 import type {Curso as CursoType} from '@/lib/mockup'
 import {useEffect, useState} from 'react';
-import {getCursos} from '@/services/api';
+import {getMeusCursos} from '@/services/api';
 import {useRouter} from 'next/navigation';
 import {useUser} from '@/context/UserContext';
 
@@ -19,7 +19,7 @@ export default function MeusCursosPage() {
 
             try {
                 setIsLoading(true);
-                const data = await getCursos(userData?.id);
+                const data = await getMeusCursos();
                 setCursos(data);
             } catch (err: any) {
                 if (err.message === 'Token inválido' || err.message === 'Token não fornecido') {

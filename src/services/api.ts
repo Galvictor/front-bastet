@@ -74,6 +74,36 @@ export const getCursos = async (userId?: string | number): Promise<Curso[]> => {
     }
 };
 
+export const getMeusCursos = async (): Promise<Curso[]> => {
+    const token = localStorage.getItem('token');
+
+    if (!token) {
+        throw new Error('Token não fornecido');
+    }
+
+    try {
+        const response = await fetch(`${BASE_URL}/meus-cursos`, {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+            },
+        });
+
+        if (response.status === 401) {
+            throw new Error('Token inválido');
+        }
+
+        if (!response.ok) {
+            throw new Error('Erro ao carregar cursos');
+        }
+
+        return response.json();
+    } catch (error) {
+        console.error('Erro ao buscar cursos:', error);
+        throw error;
+    }
+};
+
+
 export const inscreverEmCurso = async (cursoId: string | number): Promise<void> => {
     const response = await fetch(`${BASE_URL}/inscricoes/${cursoId}`, {
         method: 'POST',
